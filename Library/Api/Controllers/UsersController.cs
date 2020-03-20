@@ -26,7 +26,7 @@ namespace Library.Controllers
         [HttpPost(Name = nameof(AddUser))]
         public async Task<IActionResult> AddUser([FromBody] UserDto user)
         {
-           var res = await _userRepository.AddUser(user);
+            var res = await _userRepository.AddUser(user);
 
             return CreatedAtRoute(nameof(AddUser), res);
         }
@@ -37,6 +37,6 @@ namespace Library.Controllers
             var res = await _userRepository.GetUser(idUser);
             return Ok(res);
         }
-        
+
     }
 }

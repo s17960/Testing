@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Library.Entities;
+using Library.Helpers;
+using Library.Models.DTO;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,15 +56,46 @@ namespace XUnitTestProject1.Controllers
             httpResponse.EnsureSuccessStatusCode();
             var content = await httpResponse.Content.ReadAsStringAsync();
             var users = JsonConvert.DeserializeObject<IEnumerable<User>>(content);
-            // using (var scope = _server.Host.Services.CreateScope())
-            // {
-            //     var _db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
-            //     Assert.True(_db.User.Any());
-            // }
 
             Assert.True(users.Count() == 1);
             Assert.True(users.ElementAt(0).Login == "jd");
         }
 
+        [Fact]
+        public async Task GetUser_200Ok()
+        {
+            var userId = 1;
+            var httpResponse = await _client.GetAsync($"{_client.BaseAddress.AbsoluteUri}api/users/{userId}");
+
+            httpResponse.EnsureSuccessStatusCode();
+            var content = await httpResponse.Content.ReadAsStringAsync();
+            var user = JsonConvert.DeserializeObject<User>(content);
+
+            Assert.True(user.IdUser == userId);
+            Assert.True(user.Login == "jd");
+        }
+
+        [Fact]
+        public async Task PostUser_201Created()
+        {
+            var newUser = new UserDto
+            {
+                Name = "Marcin",
+                Surname = "S",
+                Login = "msekrecki",
+                Email = "s17960@pjwstk.edu.pl",
+                Password = "hardpassword"
+            };
+
+            string payload = JsonConvert.SerializeObject(newUser);
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var httpResponse = await _client.PostAsync($"{_client.BaseAddress.AbsoluteUri}api/users", content);
+
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            var addedUser = JsonConvert.DeserializeObject<User>(responseContent);
+
+            Assert.True(newUser.Name == addedUser.Name);
+            Assert.True(addedUser.IdUserRoleDict == (int)UserRoleHelper.UserRolesEnum.Reader);
+        }
     }
 }

@@ -28,8 +28,8 @@ namespace Library.Controllers
         [HttpPut("{idBookBorrow}")]
         public async Task<IActionResult> UpdateBookBorrow([FromBody] UpdateBookBorrowDto borrow)
         {
-            await _bookBorrowRepository.ChangeBookBorrow(borrow);
-            return NoContent();
+            var res = await _bookBorrowRepository.ChangeBookBorrow(borrow);
+            return Ok(res);
         }
 
         
